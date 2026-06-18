@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หน้าจัดการคิว</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap');
+
+  :root {
+    --rose:    #C9717A;
+    --rose-lt: #F2C4C8;
+    --cream:   #FDF6F0;
+    --sand:    #EDE0D4;
+    --bark:    #7A5C52;
+    --ink:     #2D1F1B;
+    --mist:    #F7F0EB;
+    --green:   #6BAA8E;
+    --amber:   #D4956A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--bark) 100%);
+    color: white;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(122,92,82,.25);
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    letter-spacing: .5px;
+  }
+  header small { font-size: 12px; opacity: .8; display: block; margin-top: 2px; }
+  .header-date { text-align: right; font-size: 13px; opacity: .9; }
+
+  /* ── Stats ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    padding: 20px 20px 0;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+    box-shadow: 0 1px 6px rgba(0,0,0,.07);
+    border-top: 3px solid var(--rose-lt);
+  }
+  .stat-card .val { font-size: 28px; font-weight: 700; color: var(--rose); }
+  .stat-card .lbl { font-size: 11px; color: var(--bark); margin-top: 4px; }
+
+  /* ── Date Picker ── */
+  .controls {
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .controls label { font-size: 13px; color: var(--bark); font-weight: 600; }
+  .controls input[type="date"] {
+    border: 1.5px solid var(--sand);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    cursor: pointer;
+  }
+  .controls input[type="date"]:focus { border-color: var(--rose); }
+
+  .filter-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--sand);
+    background: white;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--bark);
+    font-weight: 500;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--rose);
+    border-color: var(--rose);
+    color: white;
+  }
+
+  /* ── Booking List ── */
+  .section-title {
+    padding: 0 20px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bark);
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+
+  .booking-list {
+    padding: 0 20px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .booking-card {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 5px rgba(0,0,0,.07);
+    transition: box-shadow .15s;
+    border-left: 4px solid var(--rose-lt);
+  }
+  .booking-card.cancelled { border-left-color: #DDD; opacity: .6; }
+  .booking-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.1); }
+
+  .avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--sand);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .avatar img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+
+  .booking-info { flex: 1; min-width: 0; }
+  .booking-info .name { font-weight: 600; font-size: 14px; color: var(--ink); }
+  .booking-info .details { font-size: 12px; color: var(--bark); margin-top: 2px; }
+  .booking-info .service {
+    display: inline-block;
+    background: var(--mist);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--rose);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .booking-right { text-align: right; flex-shrink: 0; }
+  .time-badge {
+    font-size: 15px; font-weight: 700; color: var(--rose);
+    display: block;
+  }
+  .booking-id { font-size: 10px; color: #AAA; margin-top: 2px; }
+
+  .cancel-btn {
+    margin-top: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--rose-lt);
+    background: white;
+    color: var(--rose);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .cancel-btn:hover { background: var(--rose); color: white; }
+
+  .status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .status-confirmed { background: #E8F5EE; color: var(--green); }
+  .status-cancelled { background: #F5E8E8; color: #C0666B; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--bark);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; opacity: .7; }
+
+  .loading {
+    text-align: center; padding: 40px;
+    color: var(--bark); font-size: 14px;
+  }
+
+  /* ── Timeline slots ── */
+  .timeline {
+    padding: 0 20px 20px;
+    overflow-x: auto;
+  }
+  .timeline-row {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 6px;
+  }
+  .slot-chip {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--sand);
+    color: var(--bark);
+  }
+  .slot-chip.full { background: var(--rose-lt); color: var(--bark); }
+  .slot-chip.empty { background: #E8F5EE; color: var(--green); }
+
+  /* Refresh btn */
+  .refresh-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 18px; padding: 4px;
+    transition: transform .3s;
+  }
+  .refresh-btn:hover { transform: rotate(180deg); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 id="shopName">💅 ร้านเล็บ</h1>
+    <small>ระบบจัดการคิว</small>
+  </div>
+  <div class="header-date">
+    <div id="headerDate"></div>
+    <button class="refresh-btn" onclick="loadAll()" title="รีเฟรช">🔄</button>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="val" id="statToday">–</div>
+    <div class="lbl">คิววันนี้</div>
+  </div>
+  <div class="stat-card">
+    <div class="val" id="statConfirmed">–</div>
+    <div class="lbl">รอให้บริการ</div>
+  </div>
+  <div class="stat-card">
+    <div class="val" id="statCancelled">–</div>
+    <div class="lbl">ยกเลิก</div>
+  </div>
+</div>
+
+<div class="controls">
+  <label>📅 วันที่</label>
+  <input type="date" id="datePicker" onchange="loadBookings()">
+  <div class="filter-btns">
+    <button class="filter-btn active" data-status="" onclick="setFilter(this,'')">ทั้งหมด</button>
+    <button class="filter-btn" data-status="confirmed" onclick="setFilter(this,'confirmed')">✅ ยืนยัน</button>
+    <button class="filter-btn" data-status="cancelled" onclick="setFilter(this,'cancelled')">❌ ยกเลิก</button>
+  </div>
+</div>
+
+<div class="section-title">รายการคิว</div>
+<div class="booking-list" id="bookingList">
+  <div class="loading">⏳ กำลังโหลด...</div>
+</div>
+
+<script>
+let currentFilter = '';
+let config = {};
+
+// ── Init ──
+window.onload = async () => {
+  const today = new Date();
+  const bkk = new Date(today.getTime() + 7*3600000);
+  const dateStr = bkk.toISOString().split('T')[0];
+  document.getElementById('datePicker').value = dateStr;
+
+  const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  document.getElementById('headerDate').textContent =
+    `วัน${days[bkk.getUTCDay()]} ${bkk.getUTCDate()} ${months[bkk.getUTCMonth()]} ${bkk.getUTCFullYear()+543}`;
+
+  await loadConfig();
+  await loadAll();
+
+  // Auto-refresh ทุก 30 วินาที
+  setInterval(loadAll, 30000);
+};
+
+async function loadConfig() {
+  try {
+    const r = await fetch('/api/config');
+    config = await r.json();
+    document.getElementById('shopName').textContent = '💅 ' + config.shopName;
+    document.title = config.shopName + ' - จัดการคิว';
+  } catch(e) {}
+}
+
+async function loadAll() {
+  await Promise.all([loadStats(), loadBookings()]);
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats');
+    const d = await r.json();
+    document.getElementById('statToday').textContent = d.todayCount;
+    document.getElementById('statConfirmed').textContent = d.totalConfirmed;
+    document.getElementById('statCancelled').textContent = d.totalCancelled;
+  } catch(e) {}
+}
+
+async function loadBookings() {
+  const date = document.getElementById('datePicker').value;
+  const list = document.getElementById('bookingList');
+  list.innerHTML = '<div class="loading">⏳ กำลังโหลด...</div>';
+
+  try {
+    let url = `/api/bookings?date=${date}`;
+    if (currentFilter) url += `&status=${currentFilter}`;
+    const r = await fetch(url);
+    const bookings = await r.json();
+
+    if (bookings.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">💅</div>
+          <p>ยังไม่มีการจองคิวในวันนี้</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = bookings.map(b => `
+      <div class="booking-card ${b.status === 'cancelled' ? 'cancelled' : ''}" id="card-${b.id}">
+        <div class="avatar">
+          ${b.pictureUrl
+            ? `<img src="${b.pictureUrl}" onerror="this.parentElement.textContent='👤'">`
+            : '👤'}
+        </div>
+        <div class="booking-info">
+          <div class="name">${escHtml(b.displayName)}</div>
+          <div class="details">📅 ${formatDate(b.date)}</div>
+          <div class="service">💅 ${escHtml(b.service)}</div>
+          <span class="status-badge status-${b.status}">
+            ${b.status === 'confirmed' ? '✅ ยืนยัน' : '❌ ยกเลิก'}
+          </span>
+        </div>
+        <div class="booking-right">
+          <span class="time-badge">${b.timeSlot}</span>
+          <div class="booking-id">${b.id}</div>
+          ${b.status !== 'cancelled' ? `
+            <button class="cancel-btn" onclick="cancelBooking('${b.id}')">ยกเลิก</button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="loading">❌ โหลดข้อมูลไม่ได้</div>';
+  }
+}
+
+async function cancelBooking(id) {
+  if (!confirm(`ยืนยันยกเลิกคิว ${id}?`)) return;
+  try {
+    await fetch(`/api/bookings/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'cancelled' }),
+    });
+    loadAll();
+  } catch(e) { alert('เกิดข้อผิดพลาด'); }
+}
+
+function setFilter(btn, status) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = status;
+  loadBookings();
+}
+
+function formatDate(d) {
+  const [y,m,day] = d.split('-');
+  const months = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return `${parseInt(day)} ${months[parseInt(m)]} ${parseInt(y)+543}`;
+}
+
+function escHtml(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
